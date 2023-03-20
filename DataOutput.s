@@ -1,26 +1,4 @@
-;-------------------------------------------
-;Get string length
-;-------------------------------------------
-;EXPECTS:	None
-;
-;ENTRY:		es - segment in which string located
-;           di - offset start of string
-;
-;OUTPUT:	rdi - length of string
-;
-;DESTROYS:	rsi, al, ecx
-;-------------------------------------------
-StrLen:
-	xor al, al		;ax = 0
-	mov ecx, -1		;ecx = MAX_INT
-	mov rsi, rdi
-
-	repne scasb
-
-	sub rdi, rsi
-	dec rdi			;\0 do not count
-
-	ret
+%include "UtilityFunc.s"
 
 ;-------------------------------------------
 ;Put string in stdout
@@ -60,10 +38,10 @@ OutputStr:
 ;
 ;OUTPUT:	None
 ;
-;DESTROYS:	rax, rdx, rbx, rdi, rsi, rcx
+;DESTROYS:	rax, rbx, rcx, rdx, r11, rsi
 ;-------------------------------------------
 OutputNum10:
-	mov rdi, 10
+	mov r11, 10
     mov rbx, MAX_SYMBOL_IN_NUMBER
 	
 	mov rcx, rax
@@ -72,14 +50,15 @@ OutputNum10:
 		xor rax, -1	;rax *= -1
 		inc rax		;
 
-		mov rcx, 1
+		mov rcx, 1	;set flag of negative true
 		jmp .next
 
-.skip_negative:
-	mov rcx, 0
+	.skip_negative:	;else
+		mov rcx, 0	;set flag of negative false
+
 	.next:
 		xor rdx, rdx		;rdx = 0
-		div rdi				;rax = rdxrax/10 
+		div r11				;rax = rdxrax/10 
 							;rdx = rax%10
 
 		add dl, '0'			;make symbol from num
@@ -96,15 +75,11 @@ OutputNum10:
 		dec rbx
 
 .output:
-    mov rax, 0x01			        ;write64 (rdi, rsi, rdx) ... r10, r8, r9
-	mov rdi, 1				        ;stdout
     lea rsi, Number[rbx + 1]        ;message to output
+	mov rcx, MAX_SYMBOL_IN_NUMBER   ;
+    sub rcx, rbx                    ;length
 
-	mov rdx, MAX_SYMBOL_IN_NUMBER   ;
-    sub rdx, rbx                    ;length
-
-	syscall		
-
+	call PutNumberInBuffer
 	ret
 
 ;-------------------------------------------

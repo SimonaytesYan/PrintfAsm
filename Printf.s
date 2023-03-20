@@ -1,15 +1,16 @@
 section .text
 
+%include "DataOutput.s"
 
-;//! TODo output negative numbers
 global _start
+
 _start:
 	push 127
 	push 33
 	push 100
 	push 3802
 	push love_str
-	push -1
+	push -2
 	push string1
 	push 10
 	push 123
@@ -24,7 +25,7 @@ _start:
 	syscall					; exit64 (rdi)
 
 ;-------------------------------------------
-;Parsing %* construction
+;Parsing %? construction
 ;-------------------------------------------
 ;EXPECTS:	[rdi] - symbol after %
 ;			r8    - current index in Buffer
@@ -133,8 +134,7 @@ end_switch:
 ;			char* format
 ;			...
 ;			
-;
-;OUTPUT:	rdi - length of string
+;OUTPUT:	None
 ;
 ;DESTROYS:	rsi, al, ecx
 ;-------------------------------------------
@@ -143,8 +143,8 @@ Printf:
 	mov rbp, rsp
 
 	mov rdi, [rbp + 16]	;[rbp + 16] - the first argument - string format
-	mov r10, rbp		;the second argument
-	add r10, 24
+	mov r10, rbp		;
+	add r10, 24			;the second argument
 
 	xor r8, r8 			;index in Buffer
 
@@ -188,8 +188,6 @@ Printf:
 
 	pop rbp
 	ret
-
-%include "DataOutput.s"
 
 section .rodata
 jmp_table:
