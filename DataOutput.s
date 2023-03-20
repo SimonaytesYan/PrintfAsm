@@ -60,12 +60,23 @@ OutputStr:
 ;
 ;OUTPUT:	None
 ;
-;DESTROYS:	rax, rdx, rbx, rdi, rsi
+;DESTROYS:	rax, rdx, rbx, rdi, rsi, rcx
 ;-------------------------------------------
 OutputNum10:
 	mov rdi, 10
     mov rbx, MAX_SYMBOL_IN_NUMBER
+	
+	mov rcx, rax
+	shr rcx, 63
+	jz .next		;if (rax < 0)
+		xor rax, -1	;rax *= -1
+		inc rax		;
 
+		mov rcx, 1
+		jmp .next
+
+.skip_negative:
+	mov rcx, 0
 	.next:
 		xor rdx, rdx		;rdx = 0
 		div rdi				;rax = rdxrax/10 
@@ -73,15 +84,21 @@ OutputNum10:
 
 		add dl, '0'			;make symbol from num
 
-        mov Number[rbx], dl  ;
+        mov Number[rbx], dl	;
         dec rbx
 
 		cmp rax, 0	
 		jne .next				;while(ax != 0)
 
+	test rcx, rcx
+	jz .output
+		mov byte Number[rbx], '-'
+		dec rbx
+
+.output:
     mov rax, 0x01			        ;write64 (rdi, rsi, rdx) ... r10, r8, r9
 	mov rdi, 1				        ;stdout
-    lea rsi, Number[rbx + 1]            ;message to output
+    lea rsi, Number[rbx + 1]        ;message to output
 
 	mov rdx, MAX_SYMBOL_IN_NUMBER   ;
     sub rdx, rbx                    ;length

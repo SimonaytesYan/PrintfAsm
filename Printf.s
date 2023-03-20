@@ -1,12 +1,21 @@
 section .text
 
+
+;//! TODo output negative numbers
 global _start
 _start:
-
-	lea rsi, int_to_char_hex 
-
-	push 10
+	push 127
+	push 33
+	push 100
+	push 3802
+	push love_str
+	push -1
 	push string1
+	push 10
+	push 123
+	push 123
+	push 123
+	push 123
 	push string
 	call Printf
 
@@ -51,10 +60,8 @@ ParsePercent:
 
 	xor r11, r11
 	mov r11B, [rdi]		;get symbol after %
-	sub r11, 'b'
-	mov r11, [jmp_table + r11*8]
-	
-	jmp r11
+
+	jmp [jmp_table + (r11 - 'b')*8]
 
 case_b:
 	mov rax, [r10]		;get printf argument
@@ -111,6 +118,7 @@ percent:
 	jmp end_switch
 
 default_case:
+	dec rdi
 
 end_switch:
 	inc rdi
@@ -214,8 +222,9 @@ section .rodata
     MAX_SYMBOL_IN_NUMBER equ 100
 
 	int_to_char_hex: 	db "0123456789ABCDEF", 0
-	string:				db "Hello %s %c%%", 0
-	string1:			db "Yan!", 0				
+	string:				db "Hello %u %d %b %o %x %c%s %%,%d %s %x %d%%%c%b", 0
+	string1:			db "^_^", 10, 0
+	love_str:			db "love"
 
 section .bss
 	Buffer:			 db BUFFER_LENGTH*2 dup(?)
