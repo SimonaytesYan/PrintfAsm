@@ -32,11 +32,11 @@ OutputStr:
 ;-------------------------------------------
 ;Put number in dec form in stdout
 ;-------------------------------------------
-;EXPECTS:	None
+;EXPECTS:	r8 - current index in Buffer
 ;
 ;ENTRY:		rax - number for output
 ;
-;OUTPUT:	None
+;OUTPUT:	r8 - current index in Buffer
 ;
 ;DESTROYS:	rax, rbx, rcx, rdx, r11, rsi
 ;-------------------------------------------
@@ -46,15 +46,14 @@ OutputNum10:
 	
 	mov rcx, rax
 	shr rcx, 63
-	jz .next		;if (rax < 0)
-		xor rax, -1	;rax *= -1
-		inc rax		;
+	jz .next				;if (rax < 0)
+		xor rax, -1			;rax *= -1
+		inc rax				;
 
-		mov rcx, 1	;set flag of negative true
+		mov Buffer[r8], '-'
+		inc r8
+
 		jmp .next
-
-	.skip_negative:	;else
-		mov rcx, 0	;set flag of negative false
 
 	.next:
 		xor rdx, rdx		;rdx = 0
@@ -68,11 +67,6 @@ OutputNum10:
 
 		cmp rax, 0	
 		jne .next				;while(ax != 0)
-
-	test rcx, rcx
-	jz .output
-		mov byte Number[rbx], '-'
-		dec rbx
 
 .output:
     lea rsi, Number[rbx + 1]        ;message to output
@@ -94,7 +88,6 @@ OutputNum10:
 ;DESTROYS:	rax, rbx, rcx, rdx
 ;-------------------------------------------
 OutputNum2:
-
 	test rax, rax 
 	jnz .not_zero
 		mov byte Buffer[r8], '0'
