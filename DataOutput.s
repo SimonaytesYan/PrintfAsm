@@ -85,38 +85,47 @@ OutputNum10:
 ;-------------------------------------------
 ;Put number in bin form in stdout
 ;-------------------------------------------
-;EXPECTS:	None
+;EXPECTS:	r8 - current index in Buffer
 ;
 ;ENTRY:		rax - number for output
 ;
-;OUTPUT:	None
+;OUTPUT:	r8 - current index in Buffer
 ;
-;DESTROYS:	rax, rdx, rbx, rdi, rsi
+;DESTROYS:	rax, rbx, rcx, rdx
 ;-------------------------------------------
 OutputNum2:
-    mov rbx, MAX_SYMBOL_IN_NUMBER
 
+	test rax, rax 
+	jnz .not_zero
+		mov byte Buffer[r8], '0'
+		inc r8
+		ret
+
+.not_zero:
+	mov rbx, 1
+	shl rbx, 63
+
+	mov rcx, 64			;size of number
+	test rax, rbx
+	jnz .start_output
+	.remove_zero:
+		shl rax, 1
+		dec rcx
+		test rax, rbx
+		jz .remove_zero
+
+	.start_output:
 	.next:
-        mov rdx, 1
-        and rdx, rax       	;rdx = rax%2
+        mov rdx, rbx
+        and rdx, rax       		;rdx = rax%2
 
+		shr rdx, 63		
 		add dl, '0'			    ;make symbol from num
+        mov byte Buffer[r8], dl     ;
+        inc r8
 
-        mov Number[rbx], dl     ;
-        dec rbx
-
-        shr rax, 1
-		cmp rax, 0	
-		jne .next				;while(ax != 0)
-
-    mov rax, 0x01			        ;write64 (rdi, rsi, rdx) ... r10, r8, r9
-	mov rdi, 1				        ;stdout
-    lea rsi, Number[rbx + 1]        ;message to output
-	mov rdx, MAX_SYMBOL_IN_NUMBER   ;
-    sub rdx, rbx                    ;length
-
-	syscall		
-
+        shl rax, 1
+		loop .next				;while(ax != 0)
 	ret
 
 ;-------------------------------------------
