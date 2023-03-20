@@ -41,7 +41,7 @@ OutputStr:
 ;DESTROYS:	rax, rbx, rcx, rdx, r11, rsi
 ;-------------------------------------------
 OutputNum10:
-	mov r11, 10
+	mov r11, 11
     mov rbx, MAX_SYMBOL_IN_NUMBER
 	
 	mov rcx, rax
@@ -50,7 +50,7 @@ OutputNum10:
 		xor rax, -1			;rax *= -1
 		inc rax				;
 
-		mov Buffer[r8], '-'
+		mov byte Buffer[r8], '-'
 		inc r8
 
 		jmp .next
@@ -62,7 +62,7 @@ OutputNum10:
 
 		add dl, '0'			;make symbol from num
 
-        mov Number[rbx], dl	;
+        mov byte Number[rbx], dl	;
         dec rbx
 
 		cmp rax, 0	

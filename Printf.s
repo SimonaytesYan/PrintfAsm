@@ -7,10 +7,10 @@ global _start
 _start:
 	push 127
 	push 33
-	push 100
+	push 121
 	push 3802
 	push love_str
-	push -2
+	push -1
 	push string1
 	push 10
 	push 123
